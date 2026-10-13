@@ -1,0 +1,2611 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <title>Clip Tycoon</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" />
+    <style>
+        [hidden] {
+            display: none !important;
+        }
+
+        :root {
+            --bg: #fbf3e4;
+            --pn: #fff;
+            --ink: #2a2547;
+            --mu: #7a7597;
+            --ln: #eadfc9;
+            --dot: #eadcc0;
+            --or: #ff7a1a;
+            --ord: #c9560a;
+            --gr: #16a34a;
+            --grd: #0f7a37;
+            --bl: #2f7cf6;
+            --rd: #ef4444;
+            box-sizing: border-box;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #14122a;
+                --pn: #1f1c3d;
+                --ink: #f1eefc;
+                --mu: #a9a4c9;
+                --ln: #35305f;
+                --dot: #221f45;
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --bg: #14122a;
+            --pn: #1f1c3d;
+            --ink: #f1eefc;
+            --mu: #a9a4c9;
+            --ln: #35305f;
+            --dot: #221f45;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            color: var(--ink);
+            font:
+                500 15px/1.35 Fredoka,
+                "Trebuchet MS",
+                system-ui,
+                sans-serif;
+            background:
+                radial-gradient(circle at 1px 1px, var(--dot) 1.5px, transparent 0) 0 0/24px 24px,
+                var(--bg);
+        }
+
+        #app {
+            height: 100%;
+            max-width: 1180px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #top {
+            order: -2;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px;
+            background: var(--pn);
+            border-bottom: 1px solid var(--ln);
+        }
+
+        .logo {
+            display: none;
+            font-weight: 700;
+            font-size: 20px;
+            margin-right: auto;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pill {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg);
+            border: 1px solid var(--ln);
+            border-radius: 14px;
+            padding: 3px 8px 3px 4px;
+            font-weight: 700;
+            line-height: 1.1;
+            overflow: hidden;
+        }
+
+        .pill i {
+            font-style: normal;
+            flex: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 14px;
+        }
+
+        .pill span {
+            min-width: 0;
+            font-size: 15px;
+            white-space: nowrap;
+        }
+
+        .pill small {
+            display: block;
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--mu);
+        }
+
+        .pill.dbt {
+            border-color: var(--rd);
+            color: var(--rd);
+        }
+
+        .ib {
+            flex: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            border: 1px solid var(--ln);
+            background: var(--bg);
+            font-size: 15px;
+            cursor: pointer;
+            color: var(--ink);
+        }
+
+        nav {
+            display: flex;
+            background: var(--pn);
+            border-top: 1px solid var(--ln);
+            padding: 4px;
+        }
+
+        nav button {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 0;
+            background: none;
+            color: var(--mu);
+            font-weight: 600;
+            font-size: 11px;
+            font-family: inherit;
+            padding: 5px 0;
+            border-radius: 12px;
+            min-height: 46px;
+            cursor: pointer;
+        }
+
+        nav button i {
+            font-style: normal;
+            font-size: 19px;
+        }
+
+        nav button.on {
+            color: var(--or);
+            background: var(--bg);
+        }
+
+        nav button.hit {
+            background: #fecaca;
+        }
+
+        #hint {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 8px 0;
+            padding: 6px 8px 6px 10px;
+            background: var(--pn);
+            border: 1px solid var(--ln);
+            border-radius: 14px;
+            box-shadow: 0 2px 0 var(--ln);
+        }
+
+        #hint .mas {
+            font-size: 24px;
+        }
+
+        #hint .tx {
+            flex: 1;
+        }
+
+        #main {
+            flex: 1;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .pane {
+            overflow: auto;
+            padding: 8px;
+            min-height: 0;
+        }
+
+        #L {
+            display: none;
+        }
+
+        @media (min-width: 900px) {
+            #main {
+                order: 3;
+                grid-template-columns: 380px 1fr;
+                gap: 8px;
+                padding: 4px 8px;
+            }
+
+            #L {
+                display: block;
+            }
+
+            .mk {
+                display: none !important;
+            }
+
+            .logo {
+                display: flex;
+            }
+
+            .pill {
+                flex: none;
+                width: 118px;
+            }
+
+            #hint {
+                order: 2;
+            }
+
+            nav {
+                order: -1;
+                border: 0;
+                border-bottom: 1px solid var(--ln);
+                padding: 6px 10px;
+                gap: 4px;
+            }
+
+            nav button {
+                flex: none;
+                flex-direction: row;
+                gap: 6px;
+                font-size: 14px;
+                padding: 6px 16px;
+                border-radius: 999px;
+                min-height: 0;
+            }
+
+            nav button.on {
+                background: var(--or);
+                color: #fff;
+            }
+
+            nav button i {
+                font-size: 16px;
+            }
+        }
+
+        .card {
+            background: var(--pn);
+            border: 1px solid var(--ln);
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 0 var(--ln);
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .j {
+            justify-content: center;
+        }
+
+        .grow {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .mu {
+            color: var(--mu);
+            font-size: 13px;
+        }
+
+        .c {
+            text-align: center;
+        }
+
+        .btn {
+            border: 0;
+            border-radius: 12px;
+            padding: 8px 14px;
+            min-height: 40px;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 14px;
+            color: #fff;
+            background: var(--or);
+            box-shadow: 0 3px 0 var(--ord);
+            cursor: pointer;
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 var(--ord);
+        }
+
+        .btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .btn.g {
+            background: var(--gr);
+            box-shadow: 0 3px 0 var(--grd);
+        }
+
+        .btn.r {
+            background: var(--rd);
+            box-shadow: 0 3px 0 #a31d1d;
+        }
+
+        .btn.s {
+            background: var(--bg);
+            color: var(--ink);
+            border: 1px solid var(--ln);
+            box-shadow: 0 3px 0 var(--ln);
+        }
+
+        .btn.sm {
+            min-height: 32px;
+            padding: 4px 10px;
+            font-size: 13px;
+        }
+
+        button:focus-visible {
+            outline: 3px solid var(--bl);
+            outline-offset: 2px;
+        }
+
+        .ic {
+            flex: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            font-size: 22px;
+        }
+
+        .c-am {
+            background: #fde9a8;
+        }
+
+        .c-bl,
+        .c-seller {
+            background: #cfe3ff;
+        }
+
+        .c-pu,
+        .c-manager {
+            background: #e3dbff;
+        }
+
+        .c-rd {
+            background: #fed0d0;
+        }
+
+        .c-worker,
+        .c-up {
+            background: #ffe0c7;
+        }
+
+        .c-marketing {
+            background: #ffd4e6;
+        }
+
+        .c-supplier {
+            background: #c7f0e4;
+        }
+
+        .chipx {
+            display: inline-block;
+            background: var(--bg);
+            border: 1px solid var(--ln);
+            border-radius: 999px;
+            padding: 0 9px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .shop {
+            position: relative;
+            height: 150px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: linear-gradient(#bfe6ff, #effaff);
+            border: 1px solid var(--ln);
+            margin-bottom: 10px;
+        }
+
+        .shop .bld {
+            position: absolute;
+            left: 14px;
+            bottom: 34px;
+            font-size: 60px;
+            line-height: 1;
+        }
+
+        .shop .tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #fff;
+            color: #2a2547;
+            border-radius: 999px;
+            padding: 2px 12px;
+            font-weight: 700;
+        }
+
+        .ground {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 36px;
+            background: #9fe08f;
+        }
+
+        .belt {
+            position: absolute;
+            left: 90px;
+            right: 16px;
+            bottom: 30px;
+            height: 12px;
+            border-radius: 6px;
+            background: repeating-linear-gradient(90deg,
+                    #4b4b63 0 12px,
+                    #6f6f8c 12px 24px);
+            background-size: 24px 12px;
+            animation: belt 0.6s linear infinite paused;
+        }
+
+        .belt.on {
+            animation-play-state: running;
+        }
+
+        .pile {
+            position: absolute;
+            left: 100px;
+            right: 20px;
+            bottom: 44px;
+            font-size: 22px;
+            white-space: nowrap;
+            overflow: hidden;
+            line-height: 1;
+        }
+
+        .mkb {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border: 0;
+            border-radius: 18px;
+            background: linear-gradient(#ff9a3c, #ff7a1a);
+            color: #fff;
+            box-shadow: 0 6px 0 var(--ord);
+            cursor: pointer;
+            margin-bottom: 12px;
+            font-family: inherit;
+            text-align: left;
+        }
+
+        .mkb:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 var(--ord);
+        }
+
+        .mkb .mi {
+            font-size: 38px;
+        }
+
+        .mkb b {
+            display: block;
+            font-size: 22px;
+        }
+
+        .mkb small {
+            opacity: 0.9;
+            font-size: 13px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+        }
+
+        .crew {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .stall {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg);
+            border-radius: 14px;
+            padding: 8px;
+            margin: 8px 0;
+            min-height: 64px;
+        }
+
+        .queue {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            font-size: 26px;
+            line-height: 1.1;
+        }
+
+        .arr {
+            color: var(--mu);
+            font-size: 20px;
+        }
+
+        .stall .st {
+            font-size: 44px;
+        }
+
+        .price {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin: 6px 0;
+        }
+
+        .price b {
+            font-size: 34px;
+            min-width: 96px;
+            text-align: center;
+        }
+
+        .meter {
+            position: relative;
+            height: 12px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #22c55e, #facc15, #ef4444);
+            margin: 12px 0 4px;
+        }
+
+        .meter b {
+            position: absolute;
+            top: -5px;
+            width: 8px;
+            height: 22px;
+            border-radius: 4px;
+            background: var(--ink);
+            border: 2px solid var(--pn);
+            transform: translateX(-50%);
+            transition: left 0.2s;
+        }
+
+        .ml {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--mu);
+        }
+
+        .bar {
+            height: 10px;
+            background: var(--bg);
+            border: 1px solid var(--ln);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .bar i {
+            display: block;
+            height: 100%;
+            background: linear-gradient(90deg, #34d399, #3b82f6);
+            transition: width 0.2s;
+        }
+
+        .bar.d i {
+            background: linear-gradient(90deg, #fbbf24, #ef4444);
+        }
+
+        .dept {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .dept .mu {
+            font-size: 12px;
+        }
+
+        .emps {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .emp {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg);
+            border: 1px solid var(--ln);
+            border-radius: 14px;
+            padding: 6px;
+        }
+
+        .emp.hit {
+            background: #fecaca;
+        }
+
+        .av {
+            flex: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-size: 22px;
+            animation: bob 1.6s ease-in-out infinite;
+        }
+
+        .inf {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .nm {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .nm b {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .lvb {
+            background: var(--or);
+            color: #fff;
+            border-radius: 8px;
+            padding: 0 6px;
+            font-size: 11px;
+        }
+
+        .sm1 {
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .up {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .up small {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        .more {
+            flex: none;
+            width: 30px;
+            height: 36px;
+            border: 0;
+            background: none;
+            font-size: 20px;
+            color: var(--mu);
+            cursor: pointer;
+        }
+
+        .ugrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 10px;
+        }
+
+        .upg {
+            display: flex;
+            gap: 10px;
+            margin: 0;
+        }
+
+        .pips {
+            display: flex;
+            gap: 3px;
+            margin: 6px 0;
+        }
+
+        .pips i {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--ln);
+        }
+
+        .pips i.on {
+            background: var(--or);
+        }
+
+        .nx {
+            font-size: 13px;
+        }
+
+        .debt {
+            text-align: center;
+        }
+
+        .bigav {
+            width: 84px;
+            height: 84px;
+            margin: 0 auto 6px;
+            border-radius: 50%;
+            background: #e3dbff;
+            display: grid;
+            place-items: center;
+            font-size: 48px;
+            animation: bob 1.6s ease-in-out infinite;
+        }
+
+        .owe {
+            font-size: 20px;
+            margin: 8px 0;
+        }
+
+        .rdt {
+            color: var(--rd);
+        }
+
+        .goals {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 4px;
+        }
+
+        .goals .done {
+            color: var(--gr);
+        }
+
+        .kv {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            border-bottom: 1px dashed var(--ln);
+            padding: 4px 0;
+        }
+
+        .fl {
+            position: fixed;
+            z-index: 50;
+            pointer-events: none;
+            font-weight: 700;
+            animation: up 0.9s forwards;
+            text-shadow: 0 1px 0 #fff;
+            color: #2a2547;
+        }
+
+        .fl.gn {
+            color: var(--gr);
+        }
+
+        #toasts {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 58px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 60;
+            pointer-events: none;
+            width: max-content;
+            max-width: 92vw;
+        }
+
+        .t {
+            background: #2a2547;
+            color: #fff;
+            padding: 7px 14px;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            animation: in 0.2s;
+        }
+
+        .t.bad {
+            background: #b91c1c;
+        }
+
+        .t.ok {
+            background: #15803d;
+        }
+
+        .ov {
+            position: fixed;
+            inset: 0;
+            background: rgba(30, 20, 70, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            padding: 12px;
+        }
+
+        #md {
+            z-index: 25;
+        }
+
+        #cf {
+            z-index: 40;
+        }
+
+        .box {
+            background: var(--pn);
+            border: 1px solid var(--ln);
+            border-radius: 22px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+            padding: 16px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 100%;
+            overflow: auto;
+        }
+
+        .box h2 {
+            text-align: center;
+            margin: 0 0 6px;
+            font-size: 28px;
+        }
+
+        .mh {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .lv {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .lv .card {
+            margin: 0;
+            text-align: center;
+        }
+
+        .lv .big {
+            font-size: 34px;
+        }
+
+        .how {
+            padding: 0;
+            list-style: none;
+            display: grid;
+            gap: 6px;
+        }
+
+        .how li {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 8px;
+        }
+
+        .how li i {
+            font-style: normal;
+            font-size: 22px;
+        }
+
+        .stage {
+            height: 130px;
+            position: relative;
+            overflow: hidden;
+            background: #3b0764;
+            border-radius: 18px;
+        }
+
+        .dm {
+            position: absolute;
+            bottom: 6px;
+            font-size: 84px;
+            animation: come 1s forwards;
+        }
+
+        .loot {
+            position: absolute;
+            right: 10px;
+            top: 0;
+            font-size: 40px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .loot span {
+            opacity: 0;
+            animation: drop 0.6s forwards;
+        }
+
+        .pill.hit {
+            animation: shake 0.4s 4;
+            background: #fecaca;
+        }
+
+        .shop .pile.hit {
+            animation: shake 0.4s 4;
+        }
+
+        @keyframes come {
+            from {
+                right: -100px;
+            }
+
+            to {
+                right: 55%;
+            }
+        }
+
+        @keyframes drop {
+            from {
+                opacity: 0;
+                transform: translateY(-40px);
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes bob {
+            50% {
+                transform: translateY(-3px);
+            }
+        }
+
+        @keyframes up {
+            to {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes in {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+        }
+
+        @keyframes shake {
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        @keyframes belt {
+            to {
+                background-position: 24px 0;
+            }
+        }
+
+        #warn {
+            margin: 8px 8px 0;
+            order: 2;
+        }
+
+        .wn {
+            padding: 8px 12px;
+            border-radius: 14px;
+            border: 1px solid var(--ln);
+            animation: in 0.3s;
+        }
+
+        .wn.bad {
+            background: #fee2e2;
+            border-color: #fca5a5;
+            color: #7f1d1d;
+        }
+
+        .wn.ok {
+            background: #dcfce7;
+            border-color: #86efac;
+            color: #14532d;
+        }
+
+        .wn .bar {
+            margin-top: 6px;
+            background: #fff9;
+        }
+
+        button,
+        .card,
+        .emp,
+        .pill,
+        .chipx {
+            transition:
+                transform 0.15s,
+                box-shadow 0.15s,
+                background-color 0.3s,
+                opacity 0.2s,
+                filter 0.15s;
+        }
+
+        .card:hover,
+        .emp:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn:hover:not(:disabled) {
+            filter: brightness(1.07);
+        }
+
+        .bar i {
+            transition: width 0.3s linear;
+        }
+
+        .meter b {
+            transition: left 0.3s;
+        }
+
+        .pane.in>* {
+            animation: rise 0.4s both;
+        }
+
+        .pane.in>*:nth-child(2) {
+            animation-delay: 0.06s;
+        }
+
+        .pane.in>*:nth-child(3) {
+            animation-delay: 0.12s;
+        }
+
+        .pane.in>*:nth-child(n + 4) {
+            animation-delay: 0.18s;
+        }
+
+        .pile span,
+        .queue span,
+        .crew span {
+            display: inline-block;
+            animation: pop 0.4s cubic-bezier(0.2, 1.6, 0.4, 1);
+        }
+
+        .emp,
+        .upg {
+            animation: pop 0.4s cubic-bezier(0.2, 1.4, 0.4, 1);
+        }
+
+        .cloud {
+            position: absolute;
+            top: 12px;
+            font-size: 30px;
+            opacity: 0.85;
+            animation: drift 45s linear infinite;
+        }
+
+        .cloud.b {
+            top: 48px;
+            font-size: 20px;
+            animation-duration: 70s;
+            animation-delay: -30s;
+        }
+
+        .t {
+            animation:
+                in 0.25s,
+                out 0.4s 2.7s forwards;
+        }
+
+        #trophy {
+            position: fixed;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 70;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+            width: max-content;
+            max-width: 94vw;
+        }
+
+        .tr {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            background: linear-gradient(135deg, #fff4b8, #ffd23f);
+            color: #5a3a00;
+            border: 2px solid #fff;
+            border-radius: 20px;
+            padding: 10px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            animation:
+                trin 0.6s cubic-bezier(0.2, 1.4, 0.4, 1),
+                trout 0.5s 5.4s forwards;
+        }
+
+        .tr i {
+            font-size: 38px;
+            font-style: normal;
+        }
+
+        .tr small {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+
+        .pill.warn {
+            animation: pulse 1s infinite;
+            border-color: var(--rd);
+        }
+
+        button.pill {
+            font-family: inherit;
+            color: inherit;
+            cursor: pointer;
+        }
+
+        .ib.dt {
+            display: none;
+        }
+
+        @media (min-width: 900px) {
+            .ib.dt {
+                display: block;
+            }
+        }
+
+        .btn.big {
+            width: 100%;
+            min-height: 48px;
+            font-size: 17px;
+        }
+
+        .btn.up.grow {
+            align-items: center;
+        }
+
+        .up small {
+            display: block;
+        }
+
+        .gt {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .gt div {
+            background: var(--pn);
+            border: 1px solid var(--ln);
+            border-radius: 14px;
+            padding: 8px 4px;
+            text-align: center;
+            filter: grayscale(1);
+            opacity: 0.5;
+        }
+
+        .gt div.on {
+            filter: none;
+            opacity: 1;
+            background: #fff4c2;
+            color: #5a3a00;
+        }
+
+        .gt i {
+            font-style: normal;
+            font-size: 26px;
+            display: block;
+        }
+
+        .gt small {
+            font-size: 11px;
+            line-height: 1.1;
+            display: block;
+        }
+
+        @keyframes pop {
+            from {
+                opacity: 0;
+                transform: scale(0.6);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        @keyframes rise {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        @keyframes drift {
+            from {
+                left: -12%;
+            }
+
+            to {
+                left: 105%;
+            }
+        }
+
+        @keyframes out {
+            to {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+        }
+
+        @keyframes trin {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.8);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        @keyframes trout {
+            to {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+        }
+
+        @keyframes pulse {
+            50% {
+                box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.3);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div id="top"></div>
+        <div id="hint" hidden></div>
+        <div id="warn" hidden></div>
+        <div id="main">
+            <div id="L" class="pane"></div>
+            <div id="R" class="pane"></div>
+        </div>
+        <nav id="nav"></nav>
+    </div>
+    <div id="toasts"></div>
+    <div id="trophy"></div>
+    <div id="ov" class="ov" hidden></div>
+    <div id="md" class="ov" hidden></div>
+    <div id="cf" class="ov" hidden></div>
+    <script>
+        const $ = (s) => document.querySelector(s),
+            r2 = (x) => Math.round(x * 100) / 100,
+            cl = (x, a, b) => Math.max(a, Math.min(b, x)),
+            f = (n) =>
+                n >= 1e6
+                    ? (n / 1e6).toFixed(2) + "M"
+                    : n >= 1e4
+                        ? (n / 1e3).toFixed(1) + "k"
+                        : n >= 10
+                            ? "" + Math.round(n)
+                            : "" + Math.round(n * 10) / 10,
+            $$ = (n) => "$" + f(n);
+        const DIFF = {
+            easy: {
+                n: "Easy",
+                ic: "🌱",
+                money: 300,
+                mats: 100,
+                mc: 0.8,
+                pc: 0.3,
+                hire: 0.8,
+                wage: 0.6,
+                up: 0.8,
+                dem: 1.3,
+                loan: 600,
+                rate: 0.02,
+                dl: 220,
+                d: "Lots of coins, cheap stuff, friendly customers, a patient debtor.",
+            },
+            medium: {
+                n: "Medium",
+                ic: "🌳",
+                money: 150,
+                mats: 40,
+                mc: 1.2,
+                pc: 0.6,
+                hire: 1,
+                wage: 1,
+                up: 1,
+                dem: 1,
+                loan: 300,
+                rate: 0.05,
+                dl: 170,
+                d: "A fair challenge. Recommended!",
+            },
+            hard: {
+                n: "Hard",
+                ic: "🔥",
+                money: 80,
+                mats: 20,
+                mc: 1.8,
+                pc: 1.1,
+                hire: 1.3,
+                wage: 1.3,
+                up: 1.3,
+                dem: 0.8,
+                loan: 150,
+                rate: 0.1,
+                dl: 120,
+                d: "Few coins, pricey helpers, picky customers, grumpy debtor.",
+            },
+        };
+        const C = {
+            ref: 4,
+            el: 1.5,
+            floor: 0.1,
+            pay: 15,
+            int: 30,
+            sv: 0.4,
+            minP: 1,
+            maxP: 20,
+        };
+        const ROLES = {
+            worker: {
+                n: "Clip Makers",
+                ic: "👷",
+                cost: 60,
+                wage: 1.5,
+                d: "Make clips all by themselves (using wire + coins).",
+            },
+            manager: {
+                n: "Bosses",
+                ic: "🧑‍💼",
+                cost: 250,
+                wage: 5,
+                d: 'Shout "faster!" so every Clip Maker works quicker.',
+            },
+            marketing: {
+                n: "Advertisers",
+                ic: "📣",
+                cost: 200,
+                wage: 4,
+                d: "Bring more customers, who pay more, to your market.",
+            },
+            supplier: {
+                n: "Wire Buyers",
+                ic: "🚚",
+                cost: 150,
+                wage: 3,
+                d: "Buy wire for you when you run low.",
+            },
+            seller: {
+                n: "Clip Sellers",
+                ic: "🛍️",
+                cost: 150,
+                wage: 3,
+                d: "Carry clips to the market and sell them for you.",
+            },
+        };
+        const NAMES = [
+            "Wobbly Walt",
+            "Gizmo",
+            "Pickle",
+            "Sir Clip",
+            "Noodle",
+            "Biscuit",
+            "Zippy",
+            "Bongo",
+            "Fluffy",
+            "Waffles",
+            "Tofu",
+            "Sprocket",
+            "Doodle",
+            "Muffin",
+            "Captain Crunch",
+            "Banjo",
+        ];
+        const U = [
+            {
+                id: "click",
+                n: "Multi-Press",
+                ic: "👆",
+                max: 9,
+                c: (l) => 25 * 1.8 ** l,
+                t: (l) => 1 + l + " clips per tap",
+                d: "Make more clips with every tap.",
+            },
+            {
+                id: "bag",
+                n: "Bigger Bag",
+                ic: "🎒",
+                max: 6,
+                c: (l) => 60 * 2.2 ** l,
+                t: (l) => [10, 20, 35, 50, 80, 120, 200][l] + " clips per trip",
+                d: "Carry more clips to the market.",
+            },
+            {
+                id: "buy",
+                n: "Wire Truck",
+                ic: "🛒",
+                max: 5,
+                c: (l) => 50 * 2.3 ** l,
+                t: (l) =>
+                    "up to " + [20, 50, 100, 250, 500, 1000][l] + " wire per order",
+                d: "Buy more wire at once.",
+            },
+            {
+                id: "eff",
+                n: "Speedy Shoes",
+                ic: "👟",
+                max: 6,
+                c: (l) => 150 * 2 ** l,
+                t: (l) => "Clip Makers " + l * 10 + "% faster",
+                d: "All Clip Makers hurry up.",
+                p: () => cnt("worker") > 0,
+                pt: "Hire a Clip Maker first",
+            },
+            {
+                id: "ads",
+                n: "Giant Billboard",
+                ic: "🪧",
+                max: 5,
+                c: (l) => 120 * 2 ** l,
+                t: (l) => l * 10 + "% more customers",
+                d: "More people show up to shop.",
+                p: () => cnt("marketing") > 0,
+                pt: "Hire an Advertiser first",
+            },
+        ];
+        const A_ = [
+            ["Make 10 clips", () => S.st.made >= 10, 10, "📎"],
+            ["Sell your first clip", () => S.st.sold > 0, 10, "🏪"],
+            ["Earn $1,000 from sales", () => S.st.rev >= 1000, 50, "💰"],
+            ["Hire a Clip Maker", () => cnt("worker") > 0, 20, "👷"],
+            ["Hire a Boss", () => cnt("manager") > 0, 30, "🧑‍💼"],
+            ["Hire a Wire Buyer", () => cnt("supplier") > 0, 30, "🚚"],
+            ["Hire a Clip Seller", () => cnt("seller") > 0, 30, "🛍️"],
+            [
+                "Hire every helper type",
+                () => Object.keys(ROLES).every((r) => cnt(r) > 0),
+                100,
+                "🎉",
+            ],
+            ["Be worth $5,000", () => nw() >= 5000, 100, "🤑"],
+            [
+                "Pay back all your debt",
+                () => S.st.loans > 0 && S.debt <= 0.01,
+                50,
+                "😇",
+            ],
+            ["Richie Rich: hold 2,000 coins", () => S.money >= 2000, 100, "👑"],
+            [
+                "Borrow almost the max",
+                () => S.st.maxdebt >= loanMax() * 0.9,
+                40,
+                "🥴",
+            ],
+            ["Survive a debtor visit", () => (S.st.visits || 0) >= 1, 40, "🛡️"],
+            ["Make 500 clips", () => S.st.made >= 500, 60, "🏭"],
+            ["A crowd! 12 customers", () => S.q.length >= 12, 30, "🧲"],
+            ["Team of 10 helpers", () => S.emp.length >= 10, 80, "🧑‍🤝‍🧑"],
+            ["Speed demon: play at 4×", () => S.sp == 4, 20, "🏎️"],
+            [
+                "Buy 5 upgrades",
+                () => Object.values(S.up).reduce((a, b) => a + b, 0) >= 5,
+                60,
+                "⬆️",
+            ],
+            ["Cozy tycoon: play 10 min", () => S.t >= 600, 50, "☕"],
+            ["Sell 1,000 clips", () => S.st.sold >= 1000, 150, "🚀"],
+        ];
+        let S = null,
+            tab = "make",
+            last = performance.now(),
+            xy = [200, 200],
+            warned = 0,
+            selE = null,
+            CF = null,
+            FL = {};
+        const fresh = (d) => ({
+            v: 1,
+            d,
+            money: DIFF[d].money,
+            mats: DIFF[d].mats,
+            clips: 0,
+            q: [],
+            ev: null,
+            evn: 45,
+            price: C.ref,
+            sel: 10,
+            buy: 10,
+            up: {},
+            emp: [],
+            debt: 0,
+            stage: 0,
+            dl: DIFF[d].dl,
+            pt: 0,
+            it: 0,
+            t: 0,
+            nid: 1,
+            hint: 1,
+            sp: 1,
+            ach: {},
+            last: 0,
+            over: "",
+            auto: { thr: 10, res: 20, minp: 0 },
+            st: {
+                rev: 0,
+                mat: 0,
+                prod: 0,
+                wage: 0,
+                int: 0,
+                inv: 0,
+                made: 0,
+                sold: 0,
+                bought: 0,
+                used: 0,
+                loans: 0,
+                repaid: 0,
+                peak: DIFF[d].money,
+                hired: 0,
+                maxdebt: 0,
+                visits: 0,
+                taps: 0,
+                hist: [],
+            },
+        });
+        const D_ = () => DIFF[S.d],
+            lv = (id) => S.up[id] || 0,
+            cnt = (r) => S.emp.filter((e) => e.role == r).length;
+        const bag = () => [10, 20, 35, 50, 80, 120, 200][lv("bag")],
+            bcap = () => [20, 50, 100, 250, 500, 1000][lv("buy")],
+            unit = () =>
+                D_().mc *
+                (1 - 0.05 * lv("disc")) *
+                (S.ev && S.ev.id == "sale" ? 0.5 : 1),
+            pw = (e) => 1 + 0.6 * e.r;
+        const hc = (role, n) => r2(ROLES[role].cost * 1.18 ** n * D_().hire),
+            wg = (e) => r2(ROLES[e.role].wage * D_().wage * (1 + 0.1 * (e.l - 1))),
+            ucost = (e) =>
+                r2(ROLES[e.role].cost * D_().hire * 0.6 * 1.6 ** (e.l - 1)),
+            sv = (e) => r2(ROLES[e.role].cost * D_().hire * 0.5);
+        const mgrB = () =>
+            Math.min(
+                2,
+                S.emp
+                    .filter((e) => e.role == "manager")
+                    .reduce((a, e) => a + 0.15 * (1 + 0.3 * (e.l - 1)), 0),
+            );
+        const mktB = () =>
+            Math.min(
+                1.5,
+                S.emp
+                    .filter((e) => e.role == "marketing")
+                    .reduce((a, e) => a + 0.15 * (1 + 0.3 * (e.l - 1)), 0) +
+                0.1 * lv("ads"),
+            );
+        const wInt = (e) =>
+            6 / ((1 + 0.25 * (e.l - 1)) * (1 + 0.1 * lv("eff")) * (1 + mgrB())),
+            poolCap = () => Math.round(12 * (1 + mktB())),
+            maxTop = () => C.ref * 2 * Math.sqrt(D_().dem) * (1 + 0.3 * mktB());
+        const exp = () => S.st.mat + S.st.prod + S.st.wage + S.st.int,
+            net = () => S.st.rev - exp(),
+            loanMax = () => D_().loan * (1 + 0.5 * lv("credit")),
+            rate = () => D_().rate * (1 - 0.1 * lv("credit"));
+        const nw = () =>
+            S.money +
+            S.mats * D_().mc +
+            S.clips * C.ref * 0.5 +
+            S.emp.reduce((a, e) => a + sv(e), 0) -
+            S.debt;
+        function effT(e, l) {
+            return {
+                worker: () => "1 clip / " + wInt({ l }).toFixed(1) + "s",
+                manager: () =>
+                    "Clip Makers " +
+                    Math.round(0.15 * (1 + 0.3 * (l - 1)) * 100) +
+                    "% faster",
+                marketing: () =>
+                    Math.round(0.15 * (1 + 0.3 * (l - 1)) * 100) + "% more customers",
+                supplier: () =>
+                    "buys " + Math.floor(8 * (1 + 0.5 * (l - 1))) + " wire at a time",
+                seller: () => "carries " + (8 + 4 * (l - 1)) + " clips per trip",
+            }[e.role]();
+        }
+        function toast(t, c = "") {
+            const d = document.createElement("div");
+            d.className = "t " + c;
+            d.textContent = t;
+            $("#toasts").appendChild(d);
+            setTimeout(() => d.remove(), 3000);
+            if ($("#toasts").children.length > 3) $("#toasts").firstChild.remove();
+        }
+        function fl(t, c) {
+            const s = document.createElement("span");
+            s.className = "fl " + c;
+            s.textContent = t;
+            s.style.left = xy[0] - 20 + Math.random() * 40 + "px";
+            s.style.top = xy[1] - 10 + "px";
+            document.body.appendChild(s);
+            setTimeout(() => s.remove(), 900);
+        }
+        function ask(t, fn) {
+            CF = fn;
+            $("#cf").hidden = false;
+            $("#cf").innerHTML =
+                `<div class="box"><h2>🤔</h2><p class="c">${t}</p><div class="row" style="justify-content:center">${bt("cfy", "Yes!", "", "g")}${bt("cfn", "No, wait", "", "s")}</div></div>`;
+        }
+        function spend(a, cat) {
+            if (S.money < a - 1e-9) return false;
+            S.money = r2(S.money - a);
+            S.st[cat] = r2(S.st[cat] + a);
+            return true;
+        }
+        function buyMats(n) {
+            const c = r2(n * unit());
+            if (n < 1 || !spend(c, "mat")) return false;
+            S.mats += n;
+            S.st.bought += n;
+            return c;
+        }
+        function prune() {
+            const k = S.q.length;
+            S.q = S.q.filter((m) => m >= S.price);
+            const r = k - S.q.length;
+            if (r > 0)
+                toast(
+                    `😠 ${r} customer${r > 1 ? "s" : ""} lost interest and left!`,
+                    "bad",
+                );
+        }
+        function sellClips(q, who) {
+            prune();
+            q = Math.min(q, S.clips, S.q.length);
+            if (q < 1) return 0;
+            S.q.splice(0, q);
+            const rev = r2(q * S.price);
+            S.clips -= q;
+            S.money = r2(S.money + rev);
+            S.st.rev = r2(S.st.rev + rev);
+            S.st.sold += q;
+            S.st.peak = Math.max(S.st.peak, S.money);
+            return q;
+        }
+        function make() {
+            const d = D_(),
+                k = 1 + lv("click"),
+                n = Math.min(k, S.mats, Math.floor(S.money / d.pc + 1e-9));
+            if (n < 1) {
+                toast(
+                    S.mats < 1
+                        ? "Out of wire! Buy some in the wire shop 🧵"
+                        : "Not enough coins to make a clip 🪙",
+                    "bad",
+                );
+                return;
+            }
+            S.mats -= n;
+            S.st.used += n;
+            spend(r2(n * d.pc), "prod");
+            S.clips += n;
+            S.st.made += n;
+            fl("+" + n + " 📎", "gn");
+            fl("-" + n + " 🧵", "");
+            S.st.taps = (S.st.taps || 0) + 1;
+            if (S.st.taps % 10 == 0) {
+                S.money = r2(S.money + 2);
+                fl("✨ Bonus +$2", "gn");
+            }
+        }
+        function tick(dt) {
+            if (S.over) return;
+            S.t += dt;
+            const mc = unit(),
+                d = D_();
+            prune();
+            evTick(dt);
+            const x =
+                1.8 *
+                d.dem *
+                (1 + mktB()) *
+                (S.ev ? (S.ev.id == "rush" ? 2 : S.ev.id == "rain" ? 0.5 : 1) : 1) *
+                dt;
+            let k = Math.floor(x);
+            if (Math.random() < x - k) k++;
+            for (let i = 0; i < k; i++) {
+                const m =
+                    C.ref *
+                    (0.5 + 1.5 * Math.random()) *
+                    Math.sqrt(d.dem) *
+                    (1 + 0.3 * mktB());
+                if (m >= S.price && S.q.length < poolCap()) S.q.push(m);
+            }
+            for (const e of S.emp) {
+                e.t += dt;
+                if (e.role == "worker") {
+                    const iv = wInt(e);
+                    e.iv = iv;
+                    if (e.t >= iv) {
+                        if (S.mats >= 1 && S.money >= d.pc) {
+                            S.mats--;
+                            S.st.used++;
+                            spend(d.pc, "prod");
+                            S.clips++;
+                            S.st.made++;
+                            e.t = 0;
+                            e.s = "Making clips";
+                        } else {
+                            e.t = iv;
+                            e.s = S.mats < 1 ? "Out of wire!" : "Out of coins!";
+                        }
+                    } else e.s = "Making clips";
+                } else if (e.role == "supplier") {
+                    const iv = 5;
+                    e.iv = iv;
+                    if (e.t >= iv) {
+                        if (S.mats < S.auto.thr) {
+                            const q = Math.floor(8 * (1 + 0.5 * (e.l - 1))),
+                                n = Math.min(
+                                    q,
+                                    Math.floor((S.money - S.auto.res) / mc + 1e-9),
+                                );
+                            if (n > 0) {
+                                buyMats(n);
+                                e.s = "Bought " + n + " wire";
+                                e.t = 0;
+                            } else {
+                                e.s = "Too poor to buy wire";
+                                e.t = iv;
+                            }
+                        } else {
+                            e.s = "Wire is fine";
+                            e.t = iv;
+                        }
+                    }
+                } else if (e.role == "seller") {
+                    const iv = 6 / (1 + 0.1 * (e.l - 1)),
+                        cap = 8 + 4 * (e.l - 1);
+                    e.iv = iv;
+                    if (e.t >= iv) {
+                        if (S.clips > 0 && S.price - mc - d.pc >= S.auto.minp) {
+                            const n = sellClips(cap, "seller");
+                            e.s = n ? "Sold " + n + " clips!" : "Waiting for customers";
+                            e.t = n ? 0 : iv * 0.7;
+                        } else {
+                            e.s = S.clips < 1 ? "No clips to sell" : "Price too low";
+                            e.t = iv;
+                        }
+                    }
+                } else {
+                    e.s =
+                        e.role == "manager"
+                            ? "Cheering on the team"
+                            : "Putting up posters";
+                    e.iv = 1;
+                }
+            }
+            S.pt += dt;
+            if (S.pt >= C.pay) {
+                S.pt = 0;
+                const w = r2(S.emp.reduce((a, e) => a + wg(e), 0));
+                if (w > 0) {
+                    if (S.money >= w) spend(w, "wage");
+                    else {
+                        const sh = r2(w - S.money);
+                        S.st.wage += w;
+                        S.money = 0;
+                        S.debt = r2(S.debt + sh);
+                        S.st.maxdebt = Math.max(S.st.maxdebt, S.debt);
+                        toast(
+                            "No coins for salaries! The debtor lent you some 😬",
+                            "bad",
+                        );
+                    }
+                }
+                S.st.hist.push(r2(net() - S.last));
+                S.last = net();
+                if (S.st.hist.length > 24) S.st.hist.shift();
+            }
+            S.it += dt;
+            if (S.it >= C.int) {
+                S.it = 0;
+                if (S.debt > 0) {
+                    const i = r2(S.debt * rate());
+                    S.debt = r2(S.debt + i);
+                    S.st.int = r2(S.st.int + i);
+                    S.st.maxdebt = Math.max(S.st.maxdebt, S.debt);
+                    toast("Interest was added to your debt 😈");
+                }
+            }
+            if (S.debt > 0.01) {
+                S.dl -= dt;
+                const due = Math.ceil(S.debt * 0.25);
+                if (S.dl < 20 && S.money < due && !warned) {
+                    warned = 1;
+                    toast("😈 Mr. Grumblebucks is almost here!", "bad");
+                }
+                if (S.dl <= 0) {
+                    warned = 0;
+                    visit();
+                }
+            } else {
+                S.dl = D_().dl;
+                S.stage = 0;
+                S.debt = 0;
+            }
+            for (const a of A_)
+                if (!S.ach[a[0]] && a[1]()) {
+                    S.ach[a[0]] = 1;
+                    S.money = r2(S.money + a[2]);
+                    trophy(a);
+                }
+        }
+        const EV = [
+            {
+                id: "rush",
+                n: "Rush hour!",
+                ic: "🎉",
+                d: "Twice as many customers",
+                t: 25,
+            },
+            { id: "sale", n: "Wire sale!", ic: "🏷️", d: "Wire costs half", t: 25 },
+            {
+                id: "rain",
+                n: "Rainy day",
+                ic: "🌧️",
+                d: "Fewer customers for a bit",
+                t: 20,
+            },
+            { id: "lucky", n: "Lucky day!", ic: "🍀", d: "", t: 0 },
+        ];
+        function evTick(dt) {
+            if (S.ev) {
+                S.ev.t -= dt;
+                if (S.ev.t <= 0) S.ev = null;
+                return;
+            }
+            S.evn -= dt;
+            if (S.evn > 0) return;
+            S.evn = 70 + Math.random() * 50;
+            const e = EV[Math.floor(Math.random() * EV.length)];
+            if (e.id == "lucky") {
+                const v = Math.round(20 + S.st.rev * 0.02);
+                S.money = r2(S.money + v);
+                toast("🍀 Lucky day! You found " + $$(v) + " coins!", "ok");
+                return;
+            }
+            S.ev = { id: e.id, t: e.t };
+            toast(e.ic + " " + e.n + " " + e.d, "ok");
+        }
+        function trophy(a) {
+            const d = document.createElement("div");
+            d.className = "tr";
+            d.innerHTML = `<i>${a[3]}</i><div><small>Achievement unlocked!</small><br><b>${a[0]}</b> · +${$$(a[2])}</div>`;
+            $("#trophy").appendChild(d);
+            setTimeout(() => d.remove(), 5800);
+        }
+        function cred(v) {
+            v = Math.min(v, S.debt);
+            S.debt = r2(S.debt - v);
+        }
+        function showV(head, items, sub, tabHit) {
+            const t = performance.now() + 3000;
+            for (const k of tabHit) FL[k] = t;
+            $("#ov").hidden = false;
+            $("#ov").innerHTML =
+                `<div class="box"><div class="stage"><div class="dm">😈</div><div class="loot">${items.map((x, i) => `<span style="animation-delay:${1 + i * 0.6}s">${x.ic}</span>`).join("")}</div></div><h2 style="margin-top:8px">${head}</h2><div class="c">${items.map((x) => `<div style="font-size:18px">${x.ic} ${x.t}</div>`).join("") || "<div>Nothing to grab!</div>"}</div><p class="mu c">${sub}</p><div class="c">${bt("vk", "OK 😤", "", "g")}</div></div>`;
+        }
+        function visit() {
+            const due = Math.ceil(S.debt * 0.25);
+            S.st.visits = (S.st.visits || 0) + 1;
+            S.dl = D_().dl;
+            if (S.money >= due) {
+                S.money = r2(S.money - due);
+                S.debt = r2(S.debt - due);
+                S.st.repaid += due;
+                S.stage = 0;
+                showV(
+                    "Mr. Grumblebucks wants his money!",
+                    [{ ic: "🪙", t: "Took " + $$(due) + " coins from you" }],
+                    "That was your regular payment. Your debt got smaller!",
+                    ["k"],
+                );
+                return;
+            }
+            S.stage++;
+            if (S.stage == 1) {
+                const n = Math.min(S.clips, Math.ceil(S.debt / (C.ref * C.sv)));
+                S.clips -= n;
+                cred(n * C.ref * C.sv);
+                showV(
+                    "You missed a payment!",
+                    n
+                        ? [
+                            {
+                                ic: "📎",
+                                t: "Grabbed " + n + " of your clips (cheap price!)",
+                            },
+                        ]
+                        : [],
+                    "Next time he takes ANYTHING he can find. Pay him back soon!",
+                    ["c"],
+                );
+                return;
+            }
+            if (S.mats + S.clips + S.emp.length < 1) {
+                S.over = "Mr. Grumblebucks took over your clip business.";
+                return;
+            }
+            const items = [],
+                hit = [];
+            while (S.debt > 0.01) {
+                const o = [];
+                if (S.mats > 0) o.push("m");
+                if (S.clips > 0) o.push("c");
+                if (S.emp.length) o.push("e");
+                if (!o.length) break;
+                const k = o[Math.floor(Math.random() * o.length)];
+                if (k == "m") {
+                    const v = D_().mc * 0.5,
+                        n = Math.min(S.mats, Math.ceil(S.debt / v));
+                    S.mats -= n;
+                    cred(n * v);
+                    items.push({ ic: "🧵", t: n + " wire" });
+                    hit.push("m");
+                } else if (k == "c") {
+                    const v = C.ref * C.sv,
+                        n = Math.min(S.clips, Math.ceil(S.debt / v));
+                    S.clips -= n;
+                    cred(n * v);
+                    items.push({ ic: "📎", t: n + " clips" });
+                    hit.push("c");
+                } else {
+                    const e = S.emp.splice(
+                        Math.floor(Math.random() * S.emp.length),
+                        1,
+                    )[0];
+                    cred(sv(e));
+                    items.push({
+                        ic: ROLES[e.role].ic,
+                        t: e.name + " got taken away!",
+                    });
+                    hit.push("s");
+                }
+            }
+            if (S.debt <= 0.01) {
+                S.debt = 0;
+                S.stage = 0;
+            }
+            showV(
+                "Mr. Grumblebucks is grabbing your stuff!",
+                items,
+                S.debt > 0
+                    ? "You still owe him. Next time he comes back for more!"
+                    : "You are free of debt!",
+                hit,
+            );
+        }
+        const A = {
+            make,
+            tab: (v) => (tab = v),
+            bq: (v) => (S.buy = cl(S.buy + +v, 5, bcap())),
+            sq: (v) =>
+                (S.sel = cl(S.sel + +v, 1, Math.max(1, Math.min(S.clips, bag())))),
+            pr(v) {
+                S.price = cl(r2(S.price + +v), C.minP, C.maxP);
+                prune();
+            },
+            buy(v) {
+                const n = Math.min(+v, bcap()),
+                    c = buyMats(n);
+                c
+                    ? (toast("Bought " + n + " wire!", "ok"), fl("-" + $$(c), ""))
+                    : toast("Not enough coins for that much wire", "bad");
+            },
+            sell() {
+                prune();
+                if (S.clips < 1) {
+                    toast("You have no clips to sell! 📎", "bad");
+                    return;
+                }
+                const n = Math.min(S.clips, bag(), S.q.length);
+                if (n < 1) {
+                    toast("No customers right now… 🦗", "bad");
+                    return;
+                }
+                const k = sellClips(n, "you");
+                toast(`Sold ${k} clip${k > 1 ? "s" : ""}! Cha-ching 🪙`, "ok");
+                fl("+" + $$(k * S.price), "gn");
+            },
+            hire(role) {
+                const c = hc(role, cnt(role));
+                if (S.money < c) {
+                    toast("Not enough coins to hire", "bad");
+                    return;
+                }
+                spend(c, "inv");
+                S.emp.push({
+                    id: S.nid++,
+                    role,
+                    l: 1,
+                    t: 0,
+                    s: "Just arrived!",
+                    name: NAMES[S.nid % 16],
+                });
+                S.st.hired++;
+                toast("Welcome aboard! 🎉", "ok");
+            },
+            emp: (v) => (selE = +v),
+            det: () => (selE = "det"),
+            cfg: () => (selE = "cfg"),
+            x: () => (selE = null),
+            upe(id) {
+                const e = S.emp.find((x) => x.id == id);
+                if (!e || e.l >= 10) return;
+                const c = ucost(e);
+                if (!spend(c, "inv")) {
+                    toast("Not enough coins", "bad");
+                    return;
+                }
+                e.l++;
+                toast(e.name + " is now level " + e.l + "! ⭐", "ok");
+            },
+            sellE(v) {
+                const [id, mode] = v.split("|"),
+                    i = S.emp.findIndex((x) => x.id == id),
+                    e = S.emp[i],
+                    val = r2(sv(e));
+                ask("Say goodbye to " + e.name + " for " + $$(val) + "?", () => {
+                    S.emp.splice(i, 1);
+                    selE = null;
+                    if (mode == "d") cred(val);
+                    else S.money = r2(S.money + val);
+                    render();
+                });
+            },
+            upg(id) {
+                const u = U.find((x) => x.id == id),
+                    l = lv(id),
+                    c = r2(u.c(l) * D_().up);
+                if (l >= u.max || (u.p && !u.p())) return;
+                if (S.money < c) {
+                    toast("Not enough coins", "bad");
+                    return;
+                }
+                const go = () => {
+                    spend(c, "inv");
+                    S.up[id] = l + 1;
+                    toast(u.n + " bought! 🎉", "ok");
+                    render();
+                };
+                c > S.money * 0.5
+                    ? ask("Spend " + $$(c) + " on " + u.n + "?", go)
+                    : go();
+            },
+            borrow() {
+                const a = Math.min(50, r2(loanMax() - S.debt));
+                if (a <= 0) {
+                    toast("The debtor says: no more loans!", "bad");
+                    return;
+                }
+                S.money = r2(S.money + a);
+                S.debt = r2(S.debt + a);
+                S.st.loans += a;
+                S.st.maxdebt = Math.max(S.st.maxdebt, S.debt);
+                if (S.debt == a) S.dl = D_().dl;
+                toast("You borrowed " + $$(a) + ". Remember to pay it back! 😈");
+            },
+            repay(v) {
+                const a = Math.min(v == "all" ? S.debt : +v, S.debt, S.money);
+                if (a <= 0) return;
+                S.money = r2(S.money - a);
+                S.debt = r2(S.debt - a);
+                S.st.repaid += a;
+                toast("Paid back " + $$(a) + " 👍", "ok");
+            },
+            thr: (v) => (S.auto.thr = cl(S.auto.thr + +v, 0, 500)),
+            res: (v) => (S.auto.res = cl(S.auto.res + +v, 0, 5000)),
+            mp: (v) => (S.auto.minp = cl(r2(S.auto.minp + +v), 0, 10)),
+            hint() {
+                S.hint = 0;
+            },
+            spd() {
+                S.sp = S.sp == 1 ? 2 : S.sp == 2 ? 4 : 1;
+            },
+            menu: () => menu(),
+            vk() {
+                $("#ov").hidden = true;
+            },
+            go(d) {
+                const st = () => {
+                    S = fresh(d);
+                    tab = "make";
+                    warned = 0;
+                    selE = null;
+                    $("#ov").hidden = true;
+                    render();
+                    save();
+                };
+                localStorage.getItem("clip3")
+                    ? ask("Start a new game? Your old saved game will be erased.", st)
+                    : st();
+            },
+            cont() {
+                if (load()) {
+                    $("#ov").hidden = true;
+                    render();
+                }
+            },
+            rst() {
+                ask("Delete your saved game forever?", () => {
+                    localStorage.removeItem("clip3");
+                    menu();
+                });
+            },
+            close() {
+                if (S) $("#ov").hidden = true;
+            },
+            cfy() {
+                $("#cf").hidden = true;
+                const g = CF;
+                CF = null;
+                g && g();
+            },
+            cfn() {
+                $("#cf").hidden = true;
+                CF = null;
+            },
+            again() {
+                const d = S.d;
+                localStorage.removeItem("clip3");
+                S = fresh(d);
+                selE = null;
+                $("#ov").hidden = true;
+            },
+            mm() {
+                localStorage.removeItem("clip3");
+                S = null;
+                selE = null;
+                menu();
+            },
+        };
+        const dis = (a, t, v, off, x = "") =>
+            `<button class="btn ${x}" data-a="${a}" data-v="${v}" ${off ? "disabled" : ""}>${t}</button>`,
+            bt = (a, t, v = "", x = "") => dis(a, t, v, 0, x);
+        document.addEventListener("click", (e) => {
+            const b = e.target.closest("[data-a]");
+            if (!b || b.disabled) return;
+            xy = [e.clientX || 200, e.clientY || 200];
+            A[b.dataset.a]?.(b.dataset.v);
+            render();
+            save();
+        });
+        function morph(a, b) {
+            const ac = a.childNodes,
+                bc = b.childNodes;
+            for (let i = 0; i < bc.length; i++) {
+                const x = ac[i],
+                    y = bc[i];
+                if (!x) {
+                    a.appendChild(y.cloneNode(true));
+                    continue;
+                }
+                if (x.nodeType != y.nodeType || x.nodeName != y.nodeName) {
+                    a.replaceChild(y.cloneNode(true), x);
+                    continue;
+                }
+                if (x.nodeType == 3) {
+                    if (x.nodeValue != y.nodeValue) x.nodeValue = y.nodeValue;
+                    continue;
+                }
+                if (x.nodeType != 1) continue;
+                for (const at of Array.from(x.attributes))
+                    if (!y.hasAttribute(at.name)) x.removeAttribute(at.name);
+                for (const at of Array.from(y.attributes))
+                    if (x.getAttribute(at.name) !== at.value)
+                        x.setAttribute(at.name, at.value);
+                morph(x, y);
+            }
+            while (ac.length > bc.length) a.removeChild(a.lastChild);
+        }
+        function setHTML(el, h) {
+            try {
+                const t = document.createElement("div");
+                t.innerHTML = h;
+                morph(el, t);
+            } catch (e) {
+                el.innerHTML = h;
+            }
+        }
+        const prog = (a, b, c = "") =>
+            `<div class="bar ${c}"><i style="width:${cl((a / b) * 100, 0, 100)}%"></i></div>`,
+            kvs = (a) =>
+                a
+                    .map(
+                        (r) => `<div class="kv"><span>${r[0]}</span><b>${r[1]}</b></div>`,
+                    )
+                    .join(""),
+            hit = (k) => (FL[k] > performance.now() ? "hit" : ""),
+            mh = (t) =>
+                `<div class="mh"><b>${t}</b>${bt("x", "✕", "", "s sm")}</div>`;
+        const DV = {},
+            tw = (k, v) => {
+                const a = DV[k] ?? v;
+                return (DV[k] = Math.abs(v - a) < 0.5 ? v : a + (v - a) * 0.3);
+            },
+            $N = (n) =>
+                "$" + (n >= 1e4 ? (n / 1e3).toFixed(1) + "k" : Math.round(n));
+        let LT = "";
+        function vMake() {
+            const d = D_(),
+                k = 1 + lv("click"),
+                g = {},
+                mx = bcap(),
+                sz = [...new Set([10, Math.round(mx / 2), mx])];
+            S.emp.forEach((e) => (g[e.role] = (g[e.role] || 0) + 1));
+            return `<div class="shop"><span class="cloud">☁️</span><span class="cloud b">☁️</span><div class="bld">🏭</div><div class="tag">📎 ${S.clips}</div><div class="belt ${cnt("worker") ? "on" : ""}"></div><div class="pile ${hit("c")}">${"<span>📎</span>".repeat(Math.min(S.clips, 12))}</div><div class="ground"></div></div>
+${S.emp.length
+                    ? '<div class="crew">' +
+                    Object.keys(g)
+                        .map((r) => `<span class="chipx">${ROLES[r].ic} ×${g[r]}</span>`)
+                        .join("") +
+                    "</div>"
+                    : ""
+                }
+<button class="mkb" data-a="make"><span class="mi">📎</span><span><b>Make ${k > 1 ? k + " clips" : "a clip"}</b><small>uses ${k} wire + ${$$(k * d.pc)}</small></span></button>
+<div class="card"><div class="row"><div class="ic c-bl">🧵</div><div class="grow"><b>Wire shop</b><div class="mu">Clips are made of wire</div></div></div><div class="row" style="margin-top:10px">${sz.map((n) => dis("buy", "Buy " + n + "<small>" + $$(n * unit()) + "</small>", n, S.money < n * unit() - 1e-9, "g up grow")).join("")}</div></div>`;
+        }
+        function vMarket() {
+            const p = S.price,
+                M = maxTop(),
+                n = Math.min(S.clips, bag(), S.q.length),
+                f = cl((M - p) / (M * 0.75), 0, 1),
+                pos = cl((p - C.minP) / (M * 1.15 - C.minP), 0, 1) * 100,
+                st =
+                    f <= 0
+                        ? ["🚫", "Nobody will pay this much!"]
+                        : f < 0.3
+                            ? ["😬", "Only a few customers like this price"]
+                            : f < 0.7
+                                ? ["🙂", "A nice crowd is shopping"]
+                                : ["🤩", "Cheap! Customers are rushing in"],
+                faces = S.q
+                    .slice(0, 14)
+                    .map((m) => {
+                        const g = (m - p) / p;
+                        return `<span>${g < 0.15 ? "😐" : g < 0.5 ? "🙂" : "😍"}</span>`;
+                    })
+                    .join("");
+            return `<div class="card"><div class="row"><b class="grow">🏪 Clip market</b><span class="chipx">👥 ${S.q.length}</span></div>
+<div class="stall"><div class="queue">${faces || '<em class="mu">No customers yet…</em>'}</div><div class="arr">➜</div><div class="st">🏪</div></div>
+<div class="price">${bt("pr", "−", "-1", "s")}<b>${$$(p)}</b>${bt("pr", "+", "1", "s")}</div><div class="c mu">price per clip</div>
+<div class="meter"><b style="left:${pos}%"></b></div><div class="ml"><span>Cheap</span><span>Pricey</span></div>
+<div class="c" style="margin:10px 0"><span style="font-size:22px">${st[0]}</span> ${st[1]}</div>
+<div class="c">${dis("sell", S.clips < 1 ? "Make some clips first" : n ? `Sell to ${n} · +${$$(n * p)}` : "Waiting for customers…", "", n < 1, "g big")}</div></div>`;
+        }
+        const emCard = (e) => {
+            const R = ROLES[e.role],
+                c = ucost(e);
+            return `<div class="emp ${hit("s")}"><div class="av c-${e.role}">${R.ic}</div><div class="inf"><div class="nm"><b>${e.name}</b><span class="lvb">Lv ${e.l}</span></div><div class="mu sm1">${e.s || ""}</div>${prog(e.t, e.iv || 1)}</div>${e.l >= 10 ? '<span class="chipx">MAX</span>' : dis("upe", "⬆ Level up<small>" + $$(c) + "</small>", e.id, S.money < c, "g sm up")}<button class="more" data-a="emp" data-v="${e.id}" aria-label="More about ${e.name}">⋯</button></div>`;
+        };
+        function vStaff() {
+            const roles = Object.keys(ROLES).filter(
+                (k) => k == "worker" || S.st.hired > 0,
+            );
+            return (
+                `<div class="row" style="margin-bottom:8px"><div class="grow mu">${S.emp.length} on your team</div>${S.st.hired ? bt("cfg", "⚙ Rules", "", "s sm") : ""}</div>` +
+                roles
+                    .map((k) => {
+                        const R = ROLES[k],
+                            c = hc(k, cnt(k)),
+                            l = S.emp.filter((e) => e.role == k);
+                        return `<div class="card"><div class="dept"><div class="ic c-${k}">${R.ic}</div><div class="grow"><b>${R.n} <span class="chipx">${l.length}</span></b><div class="mu">${R.d}</div></div>${dis("hire", "＋ Hire · " + $$(c), k, S.money < c)}</div>${l.length ? `<div class="emps">${l.map(emCard).join("")}</div>` : ""}</div>`;
+                    })
+                    .join("")
+            );
+        }
+        function vUp() {
+            return (
+                `<div class="ugrid">` +
+                U.map((u) => {
+                    const l = lv(u.id),
+                        c = r2(u.c(l) * D_().up),
+                        mx = l >= u.max,
+                        lock = u.p && !u.p();
+                    return `<div class="card upg"><div class="ic c-up">${u.ic}</div><div class="grow"><b>${u.n}</b><div class="mu">${u.d}</div><div class="pips">${Array.from({ length: u.max }, (_, i) => `<i class="${i < l ? "on" : ""}"></i>`).join("")}</div><div class="nx"><b>${u.t(l)}</b>${mx ? "" : ' → <b class="gn">' + u.t(l + 1) + "</b>"}</div><div style="margin-top:8px">${mx ? '<span class="chipx">✅ Maxed out</span>' : lock ? `<span class="mu">🔒 ${u.pt}</span>` : dis("upg", "Buy · " + $$(c), u.id, S.money < c, "g")}</div></div></div>`;
+                }).join("") +
+                `</div>`
+            );
+        }
+        function vFin() {
+            const d = S.debt > 0;
+            return `<div class="card debt"><div class="bigav">${d ? "😈" : "😇"}</div><b style="font-size:18px">Mr. Grumblebucks</b><div class="owe">${d ? 'You owe <b class="rdt">' + $$(S.debt) + "</b>" : "You owe nothing!"}</div>
+${d ? `<div class="mu">He is on his way to collect…</div>${prog(D_().dl - S.dl, D_().dl, "d")}<div class="mu">Pay him back before the bar fills up — or he takes your stuff!</div>` : '<div class="mu">Short on coins? He lends them. But he <i>always</i> comes back for them.</div>'}
+<div class="row j" style="margin-top:12px">${dis("borrow", "Borrow $50", "", loanMax() - S.debt <= 0)}${dis("repay", "Pay $50", 50, !d || S.money <= 0, "g")}${dis("repay", "Pay all", "all", !d || S.money <= 0, "g")}</div></div>`;
+        }
+        function vStats() {
+            const a = A_.find((x) => !S.ach[x[0]]),
+                n = Object.keys(S.ach).length;
+            return `<div class="card"><b>🏆 Next goal</b><div style="font-size:18px;margin:4px 0">${a ? a[3] + " " + a[0] + ' <span class="mu">+' + $$(a[2]) + "</span>" : "You did everything! 🎉"}</div>${prog(n, A_.length)}<div class="mu">${n} of ${A_.length} achievements</div></div><div class="gt">${A_.map((g) => `<div class="${S.ach[g[0]] ? "on" : ""}" title="${g[0]}"><i>${g[3]}</i><small>${g[0].split(":")[0]}</small></div>`).join("")}</div><div class="card row"><div class="grow"><b>Want the numbers?</b></div>${bt("det", "📋 Details", "", "s")}</div>`;
+        }
+        function vDet() {
+            const st = S.st;
+            return (
+                mh("📋 Details") +
+                kvs([
+                    ["Coins", $$(S.money)],
+                    ["Debt", $$(S.debt)],
+                    ["Total worth", $$(nw())],
+                    ["Money from sales", $$(st.rev)],
+                    ["Running costs", $$(exp())],
+                    ["Profit", $$(net())],
+                    ["Spent on upgrades & hiring", $$(st.inv)],
+                    ["Clips made", st.made],
+                    ["Clips sold", st.sold],
+                    ["Wire bought / used", st.bought + " / " + st.used],
+                    ["Salaries paid", $$(st.wage)],
+                    ["Average price", st.sold ? $$(st.rev / st.sold) : "—"],
+                    ["Team size", S.emp.length],
+                    [
+                        "Time played",
+                        Math.floor(S.t / 60) + "m " + Math.floor(S.t % 60) + "s",
+                    ],
+                    ["Most debt ever", $$(st.maxdebt)],
+                    ["Interest paid", $$(st.int)],
+                    [
+                        "Loan interest",
+                        (rate() * 100).toFixed(1) + "% every " + C.int + "s",
+                    ],
+                    ["Borrow limit", $$(loanMax())],
+                    ["Salary day", "every " + C.pay + "s"],
+                ]) +
+                `<p class="mu">Customers each have a secret max price: if yours is higher they leave. Loans grow with interest. Miss a payment and the debtor takes your stuff; nothing left means game over.</p>`
+            );
+        }
+        function vEmp(e) {
+            const R = ROLES[e.role],
+                c = ucost(e),
+                mx = e.l >= 10;
+            return (
+                mh(e.name) +
+                `<div class="c"><div class="bigav c-${e.role}">${R.ic}</div><div class="mu">${R.n} · Level ${e.l}</div></div>` +
+                kvs([
+                    ["Now", effT(e, e.l)],
+                    ["Next level", mx ? "Max level!" : effT(e, e.l + 1)],
+                    ["Salary", $$(wg(e)) + " / " + C.pay + "s"],
+                ]) +
+                `<div class="row j" style="margin-top:12px">${mx ? "" : dis("upe", "⬆ Level up · " + $$(c), e.id, S.money < c, "g")}${bt("sellE", "Sell · +" + $$(sv(e)), e.id + "|c", "s")}${S.debt > 0 ? bt("sellE", "Sell → pay debt", e.id + "|d", "s") : ""}</div>`
+            );
+        }
+        function vCfg() {
+            return (
+                mh("⚙ Helper rules") +
+                `<div class="kv"><span>🚚 Buy wire when below</span><span class="row">${bt("thr", "−", "-5", "s sm")}<b>${S.auto.thr}</b>${bt("thr", "+", "5", "s sm")}</span></div><div class="kv"><span>🚚 Keep coins safe</span><span class="row">${bt("res", "−", "-10", "s sm")}<b>${$$(S.auto.res)}</b>${bt("res", "+", "10", "s sm")}</span></div><div class="kv"><span>🛍️ Min profit per clip</span><span class="row">${bt("mp", "−", "-.25", "s sm")}<b>${$$(S.auto.minp)}</b>${bt("mp", "+", ".25", "s sm")}</span></div><p class="mu">Clip Sellers use the price from the Market tab.</p>`
+            );
+        }
+        function hintT() {
+            if (!S.hint) return "";
+            if (!S.st.made) return "Hi! Tap the big orange button to make a clip!";
+            if (S.mats < 3)
+                return "Wire is running low! Buy more in the Wire shop.";
+            if (!S.st.sold) return "Open the Market tab and sell your clips!";
+            if (!cnt("worker") && S.money >= hc("worker", 0))
+                return "Psst! Hire a Clip Maker in Team — they work for you!";
+            if (S.debt > 0)
+                return "You owe Mr. Grumblebucks! Pay him in the Debtor tab.";
+            return "";
+        }
+        function render() {
+            if (!S) return;
+            const wide = matchMedia("(min-width:900px)").matches;
+            if (wide && tab == "make") tab = "market";
+            const near = S.debt > 0.01 && S.dl < 30,
+                sp = ["", "Normal", "Fast", "", "Turbo"][S.sp];
+            setHTML(
+                $("#top"),
+                `<div class="logo">📎 Clip Co.</div><div class="pill ${hit("k")}" title="Coins"><i class="c-am">🪙</i><span>${$N(tw("m", S.money))}<small>Coins</small></span></div><div class="pill ${hit("m")}" title="Wire"><i class="c-bl">🧵</i><span>${Math.round(tw("w", S.mats))}<small>Wire</small></span></div><div class="pill ${hit("c")}" title="Clips"><i class="c-pu">📎</i><span>${Math.round(tw("c", S.clips))}<small>Clips</small></span></div>${S.debt > 0.01 ? `<div class="pill dbt ${near ? "warn" : ""}" title="Debt"><i class="c-rd">😈</i><span>${$N(S.debt)}<small>${near ? "in " + Math.ceil(S.dl) + "s" : "Debt"}</small></span></div>` : ""}<button class="pill" data-a="spd" aria-label="Game speed ${S.sp}x"><i class="c-am">⏩</i><span>${S.sp}×<small>${sp}</small></span></button><button class="ib dt" data-a="det" aria-label="Details">📋</button><button class="ib" data-a="menu" aria-label="Menu">☰</button>`,
+            );
+            const h = hintT();
+            $("#hint").hidden = !h;
+            setHTML(
+                $("#hint"),
+                h
+                    ? `<span class="mas">🤖</span><span class="tx">${h}</span><button class="btn s sm" data-a="hint" aria-label="Hide tips">✕</button>`
+                    : "",
+            );
+            const due = Math.ceil(S.debt * 0.25),
+                ev = S.ev && EV.find((x) => x.id == S.ev.id);
+            let w = "";
+            if (near && S.dl < 25)
+                w = `<div class="wn bad">😈 Mr. Grumblebucks arrives in <b>${Math.ceil(S.dl)}s</b> — keep ${$$(due)} ready, or pay in the Debtor tab!${prog(25 - S.dl, 25, "d")}</div>`;
+            else if (ev)
+                w = `<div class="wn ok">${ev.ic} <b>${ev.n}</b> ${ev.d}${prog(S.ev.t, ev.t)}</div>`;
+            $("#warn").hidden = !w;
+            setHTML($("#warn"), w);
+            setHTML($("#L"), vMake());
+            const V = {
+                make: vMake,
+                market: vMarket,
+                staff: vStaff,
+                up: vUp,
+                fin: vFin,
+                stats: vStats,
+            },
+                R = $("#R");
+            if (tab !== LT) {
+                LT = tab;
+                R.scrollTop = 0;
+                R.classList.remove("in");
+                void R.offsetWidth;
+                R.classList.add("in");
+            }
+            setHTML(R, V[tab]());
+            setHTML(
+                $("#nav"),
+                [
+                    ["make", "📎", "Make"],
+                    ["market", "🏪", "Market"],
+                    ["staff", "👥", "Team"],
+                    ["up", "⬆️", "Upgrades"],
+                    ["fin", "😈", "Debtor"],
+                    ["stats", "🏆", "Goals"],
+                ]
+                    .map(
+                        (t) =>
+                            `<button class="${t[0] == tab ? "on" : ""} ${t[0] == "make" ? "mk" : ""} ${t[0] == "staff" ? hit("s") : ""}" data-a="tab" data-v="${t[0]}"><i>${t[1]}</i>${t[2]}</button>`,
+                    )
+                    .join(""),
+            );
+            const e =
+                typeof selE == "number" ? S.emp.find((x) => x.id == selE) : null;
+            if (typeof selE == "number" && !e) selE = null;
+            $("#md").hidden = !selE;
+            if (selE)
+                setHTML(
+                    $("#md"),
+                    `<div class="box">${selE == "det" ? vDet() : selE == "cfg" ? vCfg() : vEmp(e)}</div>`,
+                );
+            if (S.over) over();
+        }
+        function over() {
+            const o = $("#ov");
+            o.hidden = false;
+            setHTML(
+                o,
+                `<div class="box c"><div class="bigav">😭</div><h2>Game Over!</h2><p>${S.over}<br>Your clip business is gone.</p><div class="row j">${bt("again", "Try again", "", "g")}${bt("det", "📋 Report", "", "s")}${bt("mm", "Main menu", "", "s")}</div></div>`,
+            );
+        }
+        function menu() {
+            const o = $("#ov"),
+                has = !!localStorage.getItem("clip3");
+            o.hidden = false;
+            o.innerHTML = `<div class="box"><div class="c" style="font-size:52px">📎</div><h2>Clip Tycoon</h2><p class="mu c">Make clips, sell them, hire a team — and keep away from Mr. Grumblebucks!</p>${has ? `<div class="c">${bt("cont", "▶ Continue my game", "", "g")}</div>` : ""}
+<div class="c mu" style="margin-top:8px">Pick a level to start a new game</div><div class="lv">${Object.entries(
+                DIFF,
+            )
+                    .map(
+                        ([k, d]) =>
+                            `<div class="card"><div class="big">${d.ic}</div><b>${d.n}${k == "medium" ? " ⭐" : ""}</b><div class="mu" style="min-height:54px">${d.d}</div><div class="mu">Start: ${$$(d.money)} + ${d.mats} wire</div><div style="margin-top:8px">${bt("go", "Let's play!", k, "g")}</div></div>`,
+                    )
+                    .join("")}</div>
+<div class="row j">${S ? bt("close", "Back to game", "", "s") : ""}${has ? bt("rst", "Delete saved game", "", "r sm") : ""}</div>
+<h3 style="margin-top:14px">👇 How to play</h3><ul class="how"><li><i>📎</i>Tap the big orange button to make clips.</li><li><i>🧵</i>Buy wire in the Wire shop when it runs low.</li><li><i>🏪</i>Sell clips in the Market. Customers leave if your price is too high!</li><li><i>👷</i>Hire helpers and level them up. They work for you.</li><li><i>⬆️</i>Buy upgrades and collect achievements 🏆</li></ul>
+<h3>😈 How you lose</h3><p class="mu">Out of coins? Mr. Grumblebucks lends you some. Loans quietly grow. If you don't pay him back, he takes your clips, then your wire and helpers. When nothing is left, he takes the business!</p><p class="mu">💾 Your game saves automatically.</p></div>`;
+        }
+        function save() {
+            try {
+                if (S && !S.over) localStorage.setItem("clip3", JSON.stringify(S));
+            } catch (e) { }
+        }
+        function load() {
+            try {
+                const s = JSON.parse(localStorage.getItem("clip3"));
+                if (
+                    !s ||
+                    s.v != 1 ||
+                    !DIFF[s.d] ||
+                    typeof s.money != "number" ||
+                    !Array.isArray(s.emp) ||
+                    !s.st ||
+                    !s.auto
+                )
+                    throw 0;
+                for (const k of ["money", "mats", "clips", "debt"])
+                    if (!(s[k] >= 0)) throw 0;
+                S = Object.assign(fresh(s.d), s);
+                S.emp = S.emp.filter((e) => ROLES[e.role] && e.r >= 0 && e.l >= 1);
+                return true;
+            } catch (e) {
+                try {
+                    localStorage.removeItem("clip3");
+                } catch (_) { }
+                toast("Saved game was broken, so it was cleared.", "bad");
+                return false;
+            }
+        }
+        setInterval(() => {
+            const n = performance.now(),
+                dt = Math.min((n - last) / 1000, 0.5);
+            last = n;
+            if (!S || document.hidden || !$("#ov").hidden || !$("#cf").hidden)
+                return;
+            for (let i = 0; i < S.sp; i++) tick(dt);
+        }, 100);
+        let lr = 0;
+        const raf =
+            typeof requestAnimationFrame == "function"
+                ? requestAnimationFrame
+                : () => 0;
+        (function loop(t) {
+            if (S && t - lr > 80) {
+                lr = t;
+                render();
+            }
+            raf(loop);
+        })(0);
+        setInterval(save, 5000);
+        document.addEventListener(
+            "visibilitychange",
+            () => (last = performance.now()),
+        );
+        menu();
+    </script>
+</body>
+
+</html>
